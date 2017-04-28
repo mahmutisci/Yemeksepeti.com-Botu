@@ -11,7 +11,6 @@
 class yemeksepeti{
 	private $url;
 	private $content;
-	private $comments;
 
 	/**
 	 * @param $url
@@ -44,15 +43,46 @@ class yemeksepeti{
 	 * @return mixed
 	 */
 	public function getComments($startpage =1, $maxpage = 1){
-		$this->comments["name"] = [];
-		$this->comments["comment"] = [];
+		$items = array();
 		for ($i = $startpage; $i <= $maxpage; $i++){
 			$this->content = $this->curl($this->url."?page=".$i);
-			preg_match_all("/<div class=\"comments-body\">.*?<p>(.*?)<\/p>/", $this->content, $comment);
-			preg_match_all("/<div class=\"userName col-md-3\">.*?<div>(.*?)<\/div>/",$this->content, $name);
-			$this->comments["name"] = array_merge($this->comments["name"], $name[1]);
-			$this->comments["comment"] = array_merge($this->comments["comment"], $comment[1]);
+			preg_match_all("/<div class=\"comments-body\">.*?<p>(.*?)<\/p>/", $this->content, $comments);
+			preg_match_all("/<div class=\"userName col-md-3\">.*?<div>(.*?)<\/div>/",$this->content, $names);
+			foreach ($comments[1] as $index => $comment){
+				$items[] = [
+					"name" => $names[1][$index],
+					"comment" => $comment
+				];
+			}
 		}
-		return $this->comments;
+		return $items;
+	}
+
+	/**
+	 * @param string $type
+	 */
+	public function getMenu($type = "all"){
+		$items = array();
+		$content = $this->curl($this->url);
+		preg_match_all("/<div class=\"restaurantDetailBox None \" id=\".*?\">(.*?)<\/div>/",$content, $menu);
+		foreach ($menu[1] as $listTable){
+			preg_match("/<h2><b>(.*?)<\/b><\/h2>/", $listTable, $listName);
+			$products = array();
+			preg_match_all("/<li>(.*?)<\/li>/", $listTable, $listUl);
+			foreach ($listUl[1] as $list){
+				preg_match("/<div class=\"productName\"><a .*?>(.*?)<\/a><\/div>/", $list, $productName);
+				preg_match("/<span class=\"productInfo\"><p>(.*?)<\/p><\/span>/", $list, $productInfo);
+				preg_match("/<span class=\"pull-right newPrice\">(.*?)<\/span>/", $list, $productPrice);
+				$products[] = [
+					"name" => $productName,
+					"info" => $productInfo,
+					"price" => $productPrice
+				];
+			}
+			$items[] = [
+				"listName" => $listName,
+				"products" => $products
+			];
+		}
 	}
 }
