@@ -47,10 +47,10 @@ class yemeksepeti{
 		for ($i = $startpage; $i <= $maxpage; $i++){
 			$this->content = $this->curl($this->url."?page=".$i);
 			preg_match_all("/<div class=\"comments-body\">.*?<p>(.*?)<\/p>/", $this->content, $comments);
-			preg_match_all("/<div class=\"userName col-md-3\">.*?<div>(.*?)<\/div>/",$this->content, $names);;
-			preg_match_all("/<div class=\"speed pointText p10\">Hız: (.*?)<\/div>/", $content, $speed);
-			preg_match_all("/<div class=\"serving pointText p10\">Servis: (.*?)<\/div>/", $content, $serving);
-			preg_match_all("/<div class=\"flavour pointText p10\">Lezzet: (.*?)<\/div>/", $content, $flavour);
+			preg_match_all("/<div class=\"userName col-md-3\">.*?<div>(.*?)<\/div>/",$this->content, $names);
+			preg_match_all("/<div class=\"speed .*?\">Hız: (.*?)<\/div>/", $this->content, $speed);
+			preg_match_all("/<div class=\"serving .*?\">Servis: (.*?)<\/div>/", $this->content, $serving);
+			preg_match_all("/<div class=\"flavour .*?\">Lezzet: (.*?)<\/div>/", $this->content, $flavour);
 			foreach ($comments[1] as $index => $comment){
 				$items[] = [
 					"name" => $names[1][$index],
